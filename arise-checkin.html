@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arise Youth Conference Check-In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 1rem;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        select, input {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        input::placeholder {
+            color: #999;
+        }
+        
+        .sync-message {
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 1rem;
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .sync-message.show {
+            display: block;
+        }
+        
+        .table-wrapper {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        .check-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .check-btn:hover {
+            border-color: #999;
+        }
+        
+        .check-btn.checked {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .result-count {
+            text-align: center;
+            padding: 1rem;
+            font-size: 12px;
+            color: #666;
+            background: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .name-col {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .secondary {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                font-size: 13px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .check-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🙏 Arise Youth Conference Check-In</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Registered</div>
+                <div class="stat-value" id="total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Checked In</div>
+                <div class="stat-value" id="checkedin">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Check-In Rate</div>
+                <div class="stat-value" id="rate">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Classes</div>
+                <div class="stat-value" id="classes">0</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <select id="classfilter">
+                <option value="">All classes</option>
+            </select>
+            <input type="text" id="namesearch" placeholder="Search by name...">
+        </div>
+        
+        <div class="sync-message" id="syncstatus">✓ Saved to Google Sheet</div>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 140px;">Name</th>
+                        <th style="min-width: 130px;">Class</th>
+                        <th style="min-width: 70px;">Age</th>
+                        <th style="width: 50px; text-align: center;">✓</th>
+                        <th style="min-width: 70px;">Time</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+            <div class="result-count" id="resultcount"></div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_608zPWYvvFj0E8W2fLQL2FUx-zX70efRZH0ALZQFNT0bAe2foyTXOIujJsmebcDCVA/exec";
+        
+        // All 380+ students from your Google Sheet
+        const allStudents = [
+            {name: "Tuang", class: "Spirit Empower Life", age: "21 and above", checkedIn: false, checkInTime: ""},
+            {name: "Joseph T", class: "Salvation", age: "21 and above", checkedIn: false, checkInTime: ""},
+            {name: "Mary Ngai", class: "Youth & Leadership", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Lydia Thang", class: "Practical Worship", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Nuam En Cing", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Ciin Thang", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Deborah Cindeih Nuam", class: "Practical Church Media", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Kap lam khual", class: "Inner Wellness", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Hoih Pi", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Solomon Thang", class: "Practical Church Media", age: "19-21", checkedIn: false, checkInTime: ""},
+            {name: "Esther Huai", class: "Spirit Empower Life", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Hang Sang", class: "Practical Worship", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Mung kim", class: "Practical Worship", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Moses Mang", class: "Practical Worship", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Rebecca kim", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "ngaih nuam", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Ciin Law Cing", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+            {name: "Ahpou Yeungnum", class: "Inner Wellness", age: "21 and above", checkedIn: false, checkInTime: ""},
+            {name: "Esther Nuam", class: "Spirit Empower Life", age: "16-18", checkedIn: false, checkInTime: ""},
+            {name: "Niang Lian", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
+        ];
+        
+        let filtered = [...allStudents];
+        
+        function init() {
+            updateStats();
+            populateClasses();
+            renderTable();
+        }
+        
+        function updateStats() {
+            const total = allStudents.length;
+            const checked = allStudents.filter(s => s.checkedIn).length;
+            const pct = total ? Math.round(checked * 100 / total) : 0;
+            const classCount = new Set(allStudents.map(s => s.class)).size;
+            
+            document.getElementById("total").textContent = total;
+            document.getElementById("checkedin").textContent = checked;
+            document.getElementById("rate").textContent = pct + "%";
+            document.getElementById("classes").textContent = classCount;
+        }
+        
+        function populateClasses() {
+            const sel = document.getElementById("classfilter");
+            const classes = [...new Set(allStudents.map(s => s.class))].sort();
+            classes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c;
+                opt.textContent = c;
+                sel.appendChild(opt);
+            });
+        }
+        
+        function filterTable() {
+            const cls = document.getElementById("classfilter").value;
+            const search = document.getElementById("namesearch").value.toLowerCase();
+            
+            filtered = allStudents.filter(s => {
+                const matchCls = !cls || s.class === cls;
+                const matchSearch = !search || s.name.toLowerCase().includes(search);
+                return matchCls && matchSearch;
+            });
+            
+            renderTable();
+        }
+        
+        function renderTable() {
+            const tb = document.getElementById("tbody");
+            tb.innerHTML = "";
+            
+            filtered.forEach((s) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="name-col">${s.name}</td>
+                    <td class="secondary">${s.class}</td>
+                    <td class="secondary">${s.age}</td>
+                    <td style="text-align: center;">
+                        <button class="check-btn ${s.checkedIn ? 'checked' : ''}" onclick="toggleCheck('${s.name.replace(/'/g, "\\'")}', '${s.class.replace(/'/g, "\\'")}')">${s.checkedIn ? '✓' : '○'}</button>
+                    </td>
+                    <td class="secondary">${s.checkInTime || "—"}</td>
+                `;
+                tb.appendChild(tr);
+            });
+            
+            document.getElementById("resultcount").textContent = `Showing ${filtered.length} of ${allStudents.length} students`;
+        }
+        
+        async function toggleCheck(name, cls) {
+            const student = allStudents.find(s => s.name === name && s.class === cls);
+            if (!student) return;
+            
+            student.checkedIn = !student.checkedIn;
+            if (student.checkedIn && !student.checkInTime) {
+                const now = new Date();
+                student.checkInTime = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            } else if (!student.checkedIn) {
+                student.checkInTime = "";
+            }
+            
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        name: student.name,
+                        class: student.class,
+                        checkedIn: student.checkedIn,
+                        checkInTime: student.checkInTime
+                    })
+                });
+                
+                const msg = document.getElementById("syncstatus");
+                msg.classList.add("show");
+                setTimeout(() => { msg.classList.remove("show"); }, 1500);
+            } catch (e) {
+                console.error("Error:", e);
+            }
+            
+            updateStats();
+            renderTable();
+        }
+        
+        document.getElementById("classfilter").addEventListener("change", filterTable);
+        document.getElementById("namesearch").addEventListener("input", filterTable);
+        
+        init();
+    </script>
+</body>
+</html>
