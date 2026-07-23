@@ -152,6 +152,15 @@
             border-color: #28a745;
         }
         
+        .check-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .check-btn.checked:disabled:hover {
+            border-color: #28a745;
+        }
+        
         .result-count {
             text-align: center;
             padding: 1rem;
@@ -198,7 +207,7 @@
 </head>
 <body>
     <div class="container">
-        <h1> Arise Youth Conference Check-In</h1>
+        <h1>🙏 Arise Youth Conference Check-In</h1>
         
         <div class="stats">
             <div class="stat-card">
@@ -248,7 +257,6 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_608zPWYvvFj0E8W2fLQL2FUx-zX70efRZH0ALZQFNT0bAe2foyTXOIujJsmebcDCVA/exec";
         
-        // All 380+ students from your Google Sheet
         const allStudents = [
             {name: "Tuang", class: "Spirit Empower Life", age: "21 and above", checkedIn: false, checkInTime: ""},
             {name: "Joseph T", class: "Salvation", age: "21 and above", checkedIn: false, checkInTime: ""},
@@ -260,16 +268,6 @@
             {name: "Kap lam khual", class: "Inner Wellness", age: "16-18", checkedIn: false, checkInTime: ""},
             {name: "Hoih Pi", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
             {name: "Solomon Thang", class: "Practical Church Media", age: "19-21", checkedIn: false, checkInTime: ""},
-            {name: "Esther Huai", class: "Spirit Empower Life", age: "16-18", checkedIn: false, checkInTime: ""},
-            {name: "Hang Sang", class: "Practical Worship", age: "16-18", checkedIn: false, checkInTime: ""},
-            {name: "Mung kim", class: "Practical Worship", age: "13-15", checkedIn: false, checkInTime: ""},
-            {name: "Moses Mang", class: "Practical Worship", age: "13-15", checkedIn: false, checkInTime: ""},
-            {name: "Rebecca kim", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
-            {name: "ngaih nuam", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
-            {name: "Ciin Law Cing", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
-            {name: "Ahpou Yeungnum", class: "Inner Wellness", age: "21 and above", checkedIn: false, checkInTime: ""},
-            {name: "Esther Nuam", class: "Spirit Empower Life", age: "16-18", checkedIn: false, checkInTime: ""},
-            {name: "Niang Lian", class: "Inner Wellness", age: "13-15", checkedIn: false, checkInTime: ""},
         ];
         
         let filtered = [...allStudents];
@@ -327,7 +325,7 @@
                     <td class="secondary">${s.class}</td>
                     <td class="secondary">${s.age}</td>
                     <td style="text-align: center;">
-                        <button class="check-btn ${s.checkedIn ? 'checked' : ''}" onclick="toggleCheck('${s.name.replace(/'/g, "\\'")}', '${s.class.replace(/'/g, "\\'")}')">${s.checkedIn ? '✓' : '○'}</button>
+                        <button class="check-btn ${s.checkedIn ? 'checked' : ''}" onclick="toggleCheck('${s.name.replace(/'/g, "\\'")}', '${s.class.replace(/'/g, "\\'")}')" ${s.checkedIn ? 'disabled' : ''}>${s.checkedIn ? '✓' : '○'}</button>
                     </td>
                     <td class="secondary">${s.checkInTime || "—"}</td>
                 `;
@@ -341,12 +339,14 @@
             const student = allStudents.find(s => s.name === name && s.class === cls);
             if (!student) return;
             
-            student.checkedIn = !student.checkedIn;
-            if (student.checkedIn && !student.checkInTime) {
+            if (student.checkedIn) {
+                return;
+            }
+            
+            student.checkedIn = true;
+            if (!student.checkInTime) {
                 const now = new Date();
                 student.checkInTime = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-            } else if (!student.checkedIn) {
-                student.checkInTime = "";
             }
             
             try {
