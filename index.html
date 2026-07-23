@@ -318,11 +318,18 @@
             const tb = document.getElementById("tbody");
             tb.innerHTML = "";
             
+            // Count students per class
+            const classCounts = {};
+            allStudents.forEach(s => {
+                classCounts[s.class] = (classCounts[s.class] || 0) + 1;
+            });
+            
             filtered.forEach((s) => {
                 const tr = document.createElement("tr");
+                const classWithCount = `${s.class} (${classCounts[s.class]})`;
                 tr.innerHTML = `
                     <td class="name-col">${s.name}</td>
-                    <td class="secondary">${s.class}</td>
+                    <td class="secondary">${classWithCount}</td>
                     <td class="secondary">${s.age}</td>
                     <td style="text-align: center;">
                         <button class="check-btn ${s.checkedIn ? 'checked' : ''}" onclick="toggleCheck('${s.name.replace(/'/g, "\\'")}', '${s.class.replace(/'/g, "\\'")}')" ${s.checkedIn ? 'disabled' : ''}>${s.checkedIn ? '✓' : '○'}</button>
